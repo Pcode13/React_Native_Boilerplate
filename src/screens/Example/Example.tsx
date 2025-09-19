@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
-import { useI18n, useUser } from '@/hooks';
+import { useUser } from '@/hooks';
 import { useTheme } from '@/theme';
 
 import { AssetByVariant, IconByVariant, Skeleton } from '@/components/atoms';
@@ -11,9 +10,7 @@ import { SafeScreen } from '@/components/templates';
 const MAX_RANDOM_ID = 9;
 
 function Example() {
-  const { t } = useTranslation();
   const { useFetchOneQuery } = useUser();
-  const { toggleLanguage } = useI18n();
 
   const {
     backgrounds,
@@ -33,10 +30,10 @@ function Example() {
   useEffect(() => {
     if (fetchOneUserQuery.isSuccess) {
       Alert.alert(
-        t('screen_example.hello_user', { name: fetchOneUserQuery.data.name }),
+        `Hi, my name is ${fetchOneUserQuery.data.name}`,
       );
     }
-  }, [fetchOneUserQuery.isSuccess, fetchOneUserQuery.data, t]);
+  }, [fetchOneUserQuery.isSuccess, fetchOneUserQuery.data]);
 
   const onChangeTheme = () => {
     changeTheme(variant === 'default' ? 'dark' : 'default');
@@ -77,12 +74,12 @@ function Example() {
         <View style={[gutters.paddingHorizontal_32, gutters.marginTop_40]}>
           <View style={[gutters.marginTop_40]}>
             <Text style={[fonts.size_40, fonts.gray800, fonts.bold]}>
-              {t('screen_example.title')}
+              Welcome on The React Native BeautyApp
             </Text>
             <Text
               style={[fonts.size_16, fonts.gray200, gutters.marginBottom_40]}
             >
-              {t('screen_example.description')}
+              Do you want to discover some features? Just click on one of the two buttons at the bottom of the screen. The first allows you to call a REST API. The second lets you change the theme color.
             </Text>
           </View>
 
@@ -119,13 +116,7 @@ function Example() {
               <IconByVariant path="theme" stroke={colors.purple500} />
             </TouchableOpacity>
 
-            <TouchableOpacity
-              onPress={toggleLanguage}
-              style={[components.buttonCircle, gutters.marginBottom_16]}
-              testID="change-language-button"
-            >
-              <IconByVariant path="language" stroke={colors.purple500} />
-            </TouchableOpacity>
+
           </View>
         </View>
       </ScrollView>

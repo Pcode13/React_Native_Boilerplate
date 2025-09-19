@@ -3,7 +3,7 @@ import { type PropsWithChildren } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { ThemeProvider } from '@/theme';
-import '@/translations';
+
 
 import { queryClient, storage } from '../App';
 

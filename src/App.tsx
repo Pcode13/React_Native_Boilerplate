@@ -6,7 +6,7 @@ import { MMKV } from 'react-native-mmkv';
 
 import ApplicationNavigator from '@/navigation/Application';
 import { ThemeProvider } from '@/theme';
-import '@/translations';
+
 
 export const queryClient = new QueryClient({
   defaultOptions: {

@@ -31,9 +31,11 @@ function SafeScreen({
         backgroundColor={navigationTheme.colors.background}
         barStyle={variant === 'dark' ? 'light-content' : 'dark-content'}
       />
+
       <ErrorBoundary onReset={onResetError}>
         {isError ? <DefaultError onReset={onResetError} /> : children}
       </ErrorBoundary>
+      
     </SafeAreaView>
   );
 }

@@ -20,12 +20,11 @@
     "@react-navigation/native": "^7.1.16",
     "@react-navigation/stack": "^7.4.4",
     "@tanstack/react-query": "^5.84.0",
-    "i18next": "^25.3.2",
-    "intl-pluralrules": "^2.0.1",
+
     "ky": "^1.8.2",
     "react": "19.1.0",
     "react-error-boundary": "^5.0.0",
-    "react-i18next": "^15.6.1",
+
     "react-native": "0.80.2",
     "react-native-gesture-handler": "^2.27.2",
     "react-native-mmkv": "^3.3.0",
