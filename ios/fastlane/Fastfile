@@ -1,0 +1,59 @@
+default_platform(:ios)
+
+before_all do
+  ensure_git_branch(branch: 'main')
+  ensure_git_status_clean
+  git_pull
+end
+
+platform :ios do
+  desc "Build and upload a beta version to TestFlight"
+  lane :beta do
+    # Increment build number
+    increment_build_number
+
+    # Fetch certificates
+    get_certificates(output_path: "./builds")
+
+    # Use match for code signing
+    match(
+      type: "appstore",
+      app_identifier: "tcm.app.beautyapp", # replace with your actual bundle ID
+      readonly: true
+    )
+
+    # Fetch provisioning profile
+    get_provisioning_profile(
+      app_identifier: "tcm.app.beautyapp",
+      output_path: "./builds",
+      filename: "provisioning.mobileprovision"
+    )
+
+    # Update project team (automatic signing)
+    update_project_team(
+      teamid: "2R5BF57QZ3" # replace with your Apple Developer Team ID
+    )
+
+    # Build the app
+    build_app(
+      scheme: "BeautyApp",          # your app scheme
+      workspace: "BeautyApp.xcworkspace", # your workspace
+      clean: true,
+      export_method: "app-store",
+      build_path: "./builds",
+      output_directory: "./builds"
+    )
+
+    # Upload to TestFlight
+    upload_to_testflight
+  end
+
+  desc "Custom lane for testing"
+  lane :custom_lane do
+    match(
+      app_identifier: "tcm.app.beautyapp",
+      type: 'appstore',
+      readonly: true
+    )
+  end
+end

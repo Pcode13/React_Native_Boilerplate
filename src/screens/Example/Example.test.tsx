@@ -25,9 +25,13 @@ describe('Example screen should render correctly', () => {
     storage = new MMKV();
   });
 
+  beforeEach(() => {
+    storage.clearAll();
+  });
 
 
-  test('the user change the theme', () => {
+
+  test('the user cycles through theme modes', () => {
     const component = (
       <SafeAreaProvider>
         <ThemeProvider storage={storage}>
@@ -40,12 +44,22 @@ describe('Example screen should render correctly', () => {
 
     render(component);
 
-    expect(storage.getString('theme')).toBe('default');
+    // Should start with auto theme (set by ThemeProvider)
+    expect(storage.getString('theme')).toBe('auto');
 
     const button = screen.getByTestId('change-theme-button');
     expect(button).toBeDefined();
+    
+    // First press: auto -> light
     fireEvent.press(button);
-
+    expect(storage.getString('theme')).toBe('default');
+    
+    // Second press: light -> dark
+    fireEvent.press(button);
     expect(storage.getString('theme')).toBe('dark');
+    
+    // Third press: dark -> auto
+    fireEvent.press(button);
+    expect(storage.getString('theme')).toBe('auto');
   });
 });

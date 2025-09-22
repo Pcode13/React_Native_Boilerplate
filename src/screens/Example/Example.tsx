@@ -20,7 +20,7 @@ function Example() {
     fonts,
     gutters,
     layout,
-    variant,
+    currentThemeSetting,
   } = useTheme();
 
   const [currentId, setCurrentId] = useState(-1);
@@ -36,7 +36,14 @@ function Example() {
   }, [fetchOneUserQuery.isSuccess, fetchOneUserQuery.data]);
 
   const onChangeTheme = () => {
-    changeTheme(variant === 'default' ? 'dark' : 'default');
+    // Cycle through: auto -> light -> dark -> auto
+    if (currentThemeSetting === 'auto') {
+      changeTheme('default');
+    } else if (currentThemeSetting === 'default') {
+      changeTheme('dark');
+    } else {
+      changeTheme('auto');
+    }
   };
 
   const handleResetError = () => {
@@ -79,7 +86,7 @@ function Example() {
             <Text
               style={[fonts.size_16, fonts.gray200, gutters.marginBottom_40]}
             >
-              Do you want to discover some features? Just click on one of the two buttons at the bottom of the screen. The first allows you to call a REST API. The second lets you change the theme color.
+              Do you want to discover some features? Just click on one of the two buttons at the bottom of the screen. The first allows you to call a REST API. The second cycles through theme modes: auto (follows system), light, and dark.
             </Text>
           </View>
 

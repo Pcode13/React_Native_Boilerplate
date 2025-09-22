@@ -14,6 +14,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { useColorScheme } from 'react-native';
 
 import {
   generateBackgrounds,
@@ -36,7 +37,9 @@ import layout from '@/theme/layout';
 import generateConfig from '@/theme/ThemeProvider/generateConfig';
 
 type Context = {
-  changeTheme: (variant: Variant) => void;
+  changeTheme: (variant: Variant | 'auto') => void;
+  currentThemeSetting: Variant | 'auto';
+  storage: MMKV;
 } & Theme;
 
 export const ThemeContext = createContext<Context | undefined>(undefined);
@@ -46,22 +49,32 @@ type Properties = PropsWithChildren<{
 }>;
 
 function ThemeProvider({ children = false, storage }: Properties) {
+  const systemColorScheme = useColorScheme();
+  
   // Current theme variant
   const [variant, setVariant] = useState(
-    (storage.getString('theme') ?? 'default') as Variant,
+    (storage.getString('theme') ?? 'auto') as Variant | 'auto',
   );
 
-  // Initialize theme at default if not defined
+  // Initialize theme at auto if not defined
   useEffect(() => {
     const appHasThemeDefined = storage.contains('theme');
     if (!appHasThemeDefined) {
-      storage.set('theme', 'default');
-      setVariant('default');
+      storage.set('theme', 'auto');
+      setVariant('auto');
     }
   }, [storage]);
 
+  // Auto-detect system theme
+  const effectiveVariant = useMemo(() => {
+    if (variant === 'auto') {
+      return systemColorScheme === 'dark' ? 'dark' : 'default';
+    }
+    return variant as Variant;
+  }, [variant, systemColorScheme]);
+
   const changeTheme = useCallback(
-    (nextVariant: Variant) => {
+    (nextVariant: Variant | 'auto') => {
       setVariant(nextVariant);
       storage.set('theme', nextVariant);
     },
@@ -70,8 +83,8 @@ function ThemeProvider({ children = false, storage }: Properties) {
 
   // Flatten config with current variant
   const fullConfig = useMemo(() => {
-    return generateConfig(variant) satisfies FulfilledThemeConfiguration;
-  }, [variant]);
+    return generateConfig(effectiveVariant) satisfies FulfilledThemeConfiguration;
+  }, [effectiveVariant]);
 
   const fonts = useMemo(() => {
     return {
@@ -105,7 +118,7 @@ function ThemeProvider({ children = false, storage }: Properties) {
   }, [fullConfig]);
 
   const navigationTheme = useMemo(() => {
-    if (variant === 'dark') {
+    if (effectiveVariant === 'dark') {
       return {
         ...DarkTheme,
         colors: fullConfig.navigationColors,
@@ -117,7 +130,7 @@ function ThemeProvider({ children = false, storage }: Properties) {
       colors: fullConfig.navigationColors,
       dark: false,
     };
-  }, [variant, fullConfig.navigationColors]);
+  }, [effectiveVariant, fullConfig.navigationColors]);
 
   const theme = useMemo(() => {
     return {
@@ -127,17 +140,17 @@ function ThemeProvider({ children = false, storage }: Properties) {
       fonts,
       gutters,
       layout,
-      variant,
+      variant: effectiveVariant,
     } satisfies ComponentTheme;
-  }, [variant, fonts, backgrounds, borders, fullConfig.colors, gutters]);
+  }, [effectiveVariant, fonts, backgrounds, borders, fullConfig.colors, gutters]);
 
   const components = useMemo(() => {
     return componentsGenerator(theme);
   }, [theme]);
 
   const value = useMemo(() => {
-    return { ...theme, changeTheme, components, navigationTheme };
-  }, [theme, components, navigationTheme, changeTheme]);
+    return { ...theme, changeTheme, components, navigationTheme, currentThemeSetting: variant, storage };
+  }, [theme, components, navigationTheme, changeTheme, variant, storage]);
 
   return (
     <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
